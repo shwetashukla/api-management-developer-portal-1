@@ -63,6 +63,8 @@ import { VisibilityGuard } from "@paperbits/common/user";
 import { StaticUserService } from "./services";
 import { SignOutRouteGuard } from "./routing/signOutRouteGuard";
 import { ProvisionService } from "./services/provisioningService";
+import { OAuthService } from "./services/oauthService";
+import ClientOAuth2 = require("client-oauth2");
 
 
 export class ApimRuntimeModule implements IInjectorModule {
@@ -123,5 +125,32 @@ export class ApimRuntimeModule implements IInjectorModule {
         injector.bindSingleton("routeHelper", RouteHelper);
         injector.bindSingleton("userService", StaticUserService);
         injector.bindSingleton("provisioningService", ProvisionService);
+
+        injector.bind("oauthService", OAuthService);
     }
 }
+
+
+const githubAuth = new ClientOAuth2({
+    clientId: "754ec8dabea9c0b296d2",
+    accessTokenUri: "https://github.com/login/oauth/access_token",
+    authorizationUri: "https://github.com/login/oauth/authorize",
+    redirectUri: "https://published.apim.net/api-details/",
+    scopes: ["notifications", "gist"]
+});
+
+window["oauth2Callback"] = async (uri: string) => {
+    const user = await githubAuth.token.getToken(uri);
+
+    alert(user.accessToken);
+
+    console.log(user); // => { accessToken: '...', tokenType: 'bearer', ... }
+
+    debugger;
+
+    // // Make a request to the github API for the current user.
+    // return popsicle.request(user.sign({ method: 'get', url: 'https://api.github.com/user' })).then(function (res) {
+    //     console.log(res) //=> { body: { ... }, status: 200, headers: { ... } }
+    // });
+
+};

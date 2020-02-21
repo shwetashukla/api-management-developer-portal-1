@@ -23,6 +23,7 @@ import { ConsoleParameter } from "../../../../../models/console/consoleParameter
 import { SubscriptionState } from "../../../../../contracts/subscription";
 import { RouteHelper } from "../../../../../routing/routeHelper";
 import { TemplatingService } from "../../../../../services/templatingService";
+import { OAuthService } from "../../../../../services/oauthService";
 
 @Component({
     selector: "operation-console",
@@ -53,7 +54,9 @@ export class OperationConsole {
         private readonly usersService: UsersService,
         private readonly productService: ProductService,
         private readonly httpClient: HttpClient,
-        private readonly routeHelper: RouteHelper
+        private readonly routeHelper: RouteHelper,
+
+        private readonly oauthService: OAuthService
     ) {
         this.templates = templates;
         this.products = ko.observable();
@@ -116,6 +119,8 @@ export class OperationConsole {
         this.api.subscribe(this.resetConsole);
         this.operation.subscribe(this.resetConsole);
         this.selectedLanguage.subscribe(this.updateRequestSummary);
+
+        this.oauthService.signIn();
     }
 
     private async resetConsole(): Promise<void> {
