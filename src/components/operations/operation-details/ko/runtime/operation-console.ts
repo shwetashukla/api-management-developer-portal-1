@@ -24,6 +24,8 @@ import { SubscriptionState } from "../../../../../contracts/subscription";
 import { RouteHelper } from "../../../../../routing/routeHelper";
 import { TemplatingService } from "../../../../../services/templatingService";
 import { OAuthService } from "../../../../../services/oauthService";
+import * as ClientOAuth2 from "client-oauth2";
+
 
 @Component({
     selector: "operation-console",
@@ -119,8 +121,6 @@ export class OperationConsole {
         this.api.subscribe(this.resetConsole);
         this.operation.subscribe(this.resetConsole);
         this.selectedLanguage.subscribe(this.updateRequestSummary);
-
-        this.oauthService.signIn();
     }
 
     private async resetConsole(): Promise<void> {
@@ -455,5 +455,62 @@ export class OperationConsole {
 
     public getApiReferenceUrl(): string {
         return this.routeHelper.getApiReferenceUrl(this.api().name);
+    }
+
+    public async authenticateImplicit(): Promise<void> {
+        const clientId = "";
+        const clientSecret = "";
+        const accessTokenUri = "https://oauth2.googleapis.com/token";
+        const authorizationUri = "https://accounts.google.com/o/oauth2/auth";
+        // const redirectUri = "https://developer.apim.net/signin-oauth/code/callback";
+        const redirectUri = "https://developer.apim.net/signin-oauth/implicit/callback";
+        const scopes = ["profile"];
+
+        const oauthClient = new ClientOAuth2({
+            clientId: clientId,
+            accessTokenUri: accessTokenUri,
+            authorizationUri: authorizationUri,
+            redirectUri: redirectUri,
+            scopes: scopes
+        });
+        
+        window.open(oauthClient.token.getUri(), "_blank", "width=400,height=500");
+
+        const receiveMessage =  async (event: MessageEvent) => {
+            const uri = event.data["uri"];
+            const user = await oauthClient.token.getToken(uri);
+
+            console.log(user.accessToken);
+        };
+
+        window.addEventListener("message", receiveMessage, false);
+    }
+
+    public async authenticateCode(): Promise<void> {
+        const clientId = "";
+        const clientSecret = "";
+        const accessTokenUri = "https://oauth2.googleapis.com/token";
+        const authorizationUri = "https://accounts.google.com/o/oauth2/auth";
+        // const redirectUri = "https://developer.apim.net/signin-oauth/code/callback";
+        const redirectUri = "https://developer.apim.net/signin-oauth/code/callback";
+        const scopes = ["profile"];
+
+        const oauthClient = new ClientOAuth2({
+            clientId: clientId,
+            accessTokenUri: accessTokenUri,
+            authorizationUri: authorizationUri,
+            redirectUri: redirectUri,
+            scopes: scopes
+        });
+
+        window.open(oauthClient.code.getUri(), "_blank", "width=400,height=500");
+
+        const receiveMessage =  async (event: MessageEvent) => {
+            const accessToken = event.data["accessToken"];
+            const accessTokenType = event.data["accessTokenType"];
+            console.log(accessToken);
+        };
+
+        window.addEventListener("message", receiveMessage, false);
     }
 }

@@ -25,7 +25,7 @@ export class OAuthService {
 
         // const auth = new OAuth2PopupFlow<TokenPayload>({
         //     authorizationUri: "https://github.com/login/oauth/authorize",
-        //     clientId: "754ec8dabea9c0b296d2",
+        //     clientId: "",
         //     redirectUri: "https://published.apim.net/api-details/",
         //     scope: "openid profile",
         //   });
@@ -45,7 +45,7 @@ export class OAuthService {
 
 
 const githubAuth = new ClientOAuth2({
-    clientId: "754ec8dabea9c0b296d2",
+    clientId: "",
     accessTokenUri: "https://github.com/login/oauth/access_token",
     authorizationUri: "https://github.com/login/oauth/authorize",
     redirectUri: "https://published.apim.net/api-details/",
@@ -75,7 +75,3 @@ window["oauth2Callback"] = (uri: string) => {
 
 // Open the page in a new window, then redirect back to a page that calls our global `oauth2Callback` function.
 
-
-console.log("AAAA");
-
-debugger;
