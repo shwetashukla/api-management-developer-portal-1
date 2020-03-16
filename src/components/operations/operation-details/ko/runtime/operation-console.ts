@@ -24,7 +24,7 @@ import { SubscriptionState } from "../../../../../contracts/subscription";
 import { RouteHelper } from "../../../../../routing/routeHelper";
 import { TemplatingService } from "../../../../../services/templatingService";
 import { OAuthService } from "../../../../../services/oauthService";
-import * as ClientOAuth2 from "client-oauth2";
+import { AuthorizationServer } from "../../../../../models/authorizationServer";
 
 
 @Component({
@@ -57,7 +57,6 @@ export class OperationConsole {
         private readonly productService: ProductService,
         private readonly httpClient: HttpClient,
         private readonly routeHelper: RouteHelper,
-
         private readonly oauthService: OAuthService
     ) {
         this.templates = templates;
@@ -107,6 +106,9 @@ export class OperationConsole {
 
     @Param()
     public hostnames: ko.Observable<string[]>;
+
+    @Param()
+    public authorizationServers: AuthorizationServer[];
 
     @OnMounted()
     public async initialize(): Promise<void> {
@@ -458,59 +460,9 @@ export class OperationConsole {
     }
 
     public async authenticateImplicit(): Promise<void> {
-        const clientId = "";
-        const clientSecret = "";
-        const accessTokenUri = "https://oauth2.googleapis.com/token";
-        const authorizationUri = "https://accounts.google.com/o/oauth2/auth";
-        // const redirectUri = "https://developer.apim.net/signin-oauth/code/callback";
-        const redirectUri = "https://developer.apim.net/signin-oauth/implicit/callback";
-        const scopes = ["profile"];
+        const accessToken = await this.oauthService.authenticateImplicit();
 
-        const oauthClient = new ClientOAuth2({
-            clientId: clientId,
-            accessTokenUri: accessTokenUri,
-            authorizationUri: authorizationUri,
-            redirectUri: redirectUri,
-            scopes: scopes
-        });
-        
-        window.open(oauthClient.token.getUri(), "_blank", "width=400,height=500");
-
-        const receiveMessage =  async (event: MessageEvent) => {
-            const uri = event.data["uri"];
-            const user = await oauthClient.token.getToken(uri);
-
-            console.log(user.accessToken);
-        };
-
-        window.addEventListener("message", receiveMessage, false);
+        debugger;
     }
 
-    public async authenticateCode(): Promise<void> {
-        const clientId = "";
-        const clientSecret = "";
-        const accessTokenUri = "https://oauth2.googleapis.com/token";
-        const authorizationUri = "https://accounts.google.com/o/oauth2/auth";
-        // const redirectUri = "https://developer.apim.net/signin-oauth/code/callback";
-        const redirectUri = "https://developer.apim.net/signin-oauth/code/callback";
-        const scopes = ["profile"];
-
-        const oauthClient = new ClientOAuth2({
-            clientId: clientId,
-            accessTokenUri: accessTokenUri,
-            authorizationUri: authorizationUri,
-            redirectUri: redirectUri,
-            scopes: scopes
-        });
-
-        window.open(oauthClient.code.getUri(), "_blank", "width=400,height=500");
-
-        const receiveMessage =  async (event: MessageEvent) => {
-            const accessToken = event.data["accessToken"];
-            const accessTokenType = event.data["accessTokenType"];
-            console.log(accessToken);
-        };
-
-        window.addEventListener("message", receiveMessage, false);
-    }
 }

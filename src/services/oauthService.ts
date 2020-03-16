@@ -1,77 +1,79 @@
-import { HttpClient } from "@paperbits/common/http";
 import * as ClientOAuth2 from "client-oauth2";
-
-// import { OAuth2PopupFlow } from "oauth2-popup-flow";
+import { MapiClient } from "./mapiClient";
+import { AuthorizationServerContract } from "../contracts/authorizationServer";
+import { AuthorizationServer } from "./../models/authorizationServer";
+import { PageContract } from "../contracts/page";
 
 export class OAuthService {
-    constructor(private readonly httpClient: HttpClient) {
-
+    constructor(private readonly mapiClient: MapiClient) {
     }
 
-    public async signIn(): Promise<void> {
-        console.log(githubAuth.token.getUri());
-        window.open(githubAuth.token.getUri(), "_self", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=400,height=400");
+    public async getOAuthServers(): Promise<AuthorizationServer[]> {
+        try {
+            const pageOfOAuthservers = await this.mapiClient.get<PageContract<AuthorizationServerContract>>("/authorizationServers");
+            return pageOfOAuthservers.value.map(x => new AuthorizationServer(x));
+        }
+        catch (error) {
+            debugger;
+        }
+    }
 
-        // // // Open the page in a new window, then redirect back to a page that calls our global `oauth2Callback` function.
-        // // window.open(githubAuth.token.getUri()); // , "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=400,height=400");
+    public async authenticateImplicit(): Promise<void> {
+        const clientId = "356699480563-70p2o8jft36npoa867oiqp3iq99mlrp9.apps.googleusercontent.com";
+        const accessTokenUri = "https://oauth2.googleapis.com/token";
+        const authorizationUri = "https://accounts.google.com/o/oauth2/auth";
+        const redirectUri = "https://developer.apim.net/signin-oauth/implicit/callback";
+        const scopes = ["profile"];
 
-        // interface TokenPayload {
-        //     exp: number;
-        //     other: string;
-        //     stuff: string;
-        //     username: string;
-        // }
+        const oauthClient = new ClientOAuth2({
+            clientId: clientId,
+            accessTokenUri: accessTokenUri,
+            authorizationUri: authorizationUri,
+            redirectUri: redirectUri,
+            scopes: scopes
+        });
 
+        window.open(oauthClient.token.getUri(), "_blank", "width=400,height=500");
 
-        // const auth = new OAuth2PopupFlow<TokenPayload>({
-        //     authorizationUri: "https://github.com/login/oauth/authorize",
-        //     clientId: "",
-        //     redirectUri: "https://published.apim.net/api-details/",
-        //     scope: "openid profile",
-        //   });
+        const receiveMessage = async (event: MessageEvent) => {
+            const uri = event.data["uri"];
+            const user = await oauthClient.token.getToken(uri);
 
-        // // if the user is already logged in, it won't open the popup
-        // auth.tryLoginPopup().then(result => {
-        //     if (result === "ALREADY_LOGGED_IN") {
-        //         debugger;
-        //     } else if (result === "POPUP_FAILED") {
-        //         debugger;
-        //     } else if (result === "SUCCESS") {
-        //         debugger;
-        //     }
-        // });
+            console.log(user.accessToken);
+        };
+
+        window.addEventListener("message", receiveMessage, false);
+    }
+
+    public async authenticateCode(): Promise<string> {
+        const clientId = "";
+        const accessTokenUri = "https://oauth2.googleapis.com/token";
+        const authorizationUri = "https://accounts.google.com/o/oauth2/auth";
+        // const redirectUri = "https://developer.apim.net/signin-oauth/code/callback";
+        const redirectUri = "https://alzaslontests02.developer.preview.int-azure-api.net/signin-oauth/code/callback";
+        const scopes = ["profile"];
+
+        const oauthClient = new ClientOAuth2({
+            clientId: clientId,
+            accessTokenUri: accessTokenUri,
+            authorizationUri: authorizationUri,
+            redirectUri: redirectUri,
+            scopes: scopes
+        });
+
+        return new Promise<string>((resolve, reject) => {
+            window.open(oauthClient.code.getUri(), "_blank", "width=400,height=500");
+
+            const receiveMessage = async (event: MessageEvent) => {
+                const accessToken = event.data["accessToken"];
+                const accessTokenType = event.data["accessTokenType"];
+                console.log(accessToken);
+
+                resolve(accessToken);
+            };
+
+            window.addEventListener("message", receiveMessage, false);
+        });
     }
 }
-
-
-const githubAuth = new ClientOAuth2({
-    clientId: "",
-    accessTokenUri: "https://github.com/login/oauth/access_token",
-    authorizationUri: "https://github.com/login/oauth/authorize",
-    redirectUri: "https://published.apim.net/api-details/",
-    scopes: ["notifications", "gist"]
-});
-
-
-window["oauth2Callback"] = (uri: string) => {
-    console.log("BBB");
-    console.log(uri);
-
-
-    githubAuth.token.getToken(uri)
-        .then((user) => {
-            console.log(user); // => { accessToken: '...', tokenType: 'bearer', ... }
-
-
-            // Make a request to the github API for the current user.
-            // return popsicle.request(user.sign({
-            //     method: "get",
-            //     url: "https://api.github.com/user"
-            // })).then(function (res) {
-            //     console.log(res); // => { body: { ... }, status: 200, headers: { ... } }
-            // });
-        });
-};
-
-// Open the page in a new window, then redirect back to a page that calls our global `oauth2Callback` function.
 

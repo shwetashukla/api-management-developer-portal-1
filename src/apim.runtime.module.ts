@@ -124,7 +124,6 @@ export class ApimRuntimeModule implements IInjectorModule {
         injector.bindSingleton("routeHelper", RouteHelper);
         injector.bindSingleton("userService", StaticUserService);
         injector.bindSingleton("provisioningService", ProvisionService);
-
-        injector.bind("oauthService", OAuthService);
+        injector.bindSingleton("oauthService", OAuthService);
     }
 }

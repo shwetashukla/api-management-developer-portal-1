@@ -1,3 +1,4 @@
+import { AuthorizationServer } from "./../../../../../models/authorizationServer";
 import { Representation } from "./../../../../../models/representation";
 import * as ko from "knockout";
 import template from "./operation-details.html";
@@ -33,6 +34,7 @@ export class OperationDetails {
     public readonly requestUrlSample: ko.Computed<string>;
     public readonly primaryHostname: ko.Observable<string>;
     public readonly hostnames: ko.Observable<string[]>;
+    public readonly selectedAuthServer: ko.Observable<string>;
     public readonly working: ko.Observable<boolean>;
 
     constructor(
@@ -44,6 +46,7 @@ export class OperationDetails {
         this.working = ko.observable(false);
         this.primaryHostname = ko.observable();
         this.hostnames = ko.observable();
+        this.selectedAuthServer = ko.observable();
         this.api = ko.observable();
         this.schemas = ko.observableArray([]);
         this.tags = ko.observableArray([]);
@@ -74,6 +77,9 @@ export class OperationDetails {
 
     @Param()
     public enableConsole: boolean;
+
+    @Param()
+    public authorizationServers: AuthorizationServer[];
 
     @OnMounted()
     public async initialize(): Promise<void> {

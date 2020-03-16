@@ -40,6 +40,19 @@
         </div>
         <div class="col-6">
             <div class="form-group">
+                <select id="subscriptionKey" class="form-control"
+                    data-bind="options: $component.authorizationServers, optionsText: 'displayName', value: $component.selectedAuthServer">
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row flex flex-row">
+        <div class="col-4">
+            <input type="text" readonly class="form-control form-control-sm" value="Subscription key" />
+        </div>
+        <div class="col-6">
+            <div class="form-group">
                 <!-- ko if: $component.products() && $component.products().length > 0 -->
                 <select id="subscriptionKey" class="form-control" data-bind="value: $component.selectedSubscriptionKey">
                     <!-- ko foreach: { data: $component.products, as: 'product' } -->
