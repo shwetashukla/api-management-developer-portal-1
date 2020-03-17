@@ -85,3 +85,9 @@ export const SettingNames = {
     managementApiVersion: "managementApiVersion",
     managementApiAccessToken: "managementApiAccessToken"
 };
+
+export const GrantTypes = {
+    implicit: "implicit",
+    authorizationCode: "authorizationCode",
+    clientCrdentials: "clientCrdentials"
+};

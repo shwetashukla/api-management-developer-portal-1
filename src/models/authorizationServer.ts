@@ -1,3 +1,4 @@
+import { GrantTypes } from "./../constants";
 import { AuthorizationServerContract } from "./../contracts/authorizationServer";
 
 export class AuthorizationServer {
@@ -7,6 +8,8 @@ export class AuthorizationServer {
     public readonly authorizationEndpoint: string;
     public readonly tokenEndpoint: string;
     public readonly grantTypes: string[];
+    public readonly defaultScope: string;
+
 
     constructor(contract: AuthorizationServerContract) {
         this.id = contract.name;
@@ -14,6 +17,9 @@ export class AuthorizationServer {
         this.clientId = contract.properties.clientId;
         this.authorizationEndpoint = contract.properties.authorizationEndpoint;
         this.tokenEndpoint = contract.properties.tokenEndpoint;
-        this.grantTypes = contract.properties.grantTypes.filter(x => x === "implicit"); // Temporarily filter out other flows
+        this.defaultScope = contract.properties.defaultScope;
+
+        // Temporarily filtering out other flows, until backend starts support them.
+        this.grantTypes = contract.properties.grantTypes.filter(x => x === GrantTypes.implicit); 
     }
 }

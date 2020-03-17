@@ -1,4 +1,6 @@
+
 import * as ClientOAuth2 from "client-oauth2";
+import { GrantTypes } from "./../constants";
 import { MapiClient } from "./mapiClient";
 import { AuthorizationServerContract } from "../contracts/authorizationServer";
 import { AuthorizationServer } from "../models/authorizationServer";
@@ -15,7 +17,7 @@ export class OAuthService {
                 .value
                 .map(authServer => new AuthorizationServer(authServer))
                 // Temporarily filtering out other flows, until backend starts support them.
-                .filter(authServer => authServer.grantTypes.includes("implicit")); 
+                .filter(authServer => authServer.grantTypes.includes(GrantTypes.implicit)); 
         }
         catch (error) {
             throw new Error(`Unable to fetch configured authorization servers.`);
@@ -26,15 +28,15 @@ export class OAuthService {
         let accessToken;
 
         switch (grantType) {
-            case "implicit":
+            case GrantTypes.implicit:
                 accessToken = await this.authenticateImplicit(authorizationServer);
                 break;
                 
-            case "authorizationCode":
+            case GrantTypes.authorizationCode:
                 accessToken = await this.authenticateCode(authorizationServer);
                 break;
 
-            case "clientCredentials":
+            case GrantTypes.clientCrdentials:
                 accessToken = await this.authenticateClientCredentials();
                 break;
 
