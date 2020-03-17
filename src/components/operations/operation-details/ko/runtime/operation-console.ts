@@ -332,9 +332,13 @@ export class OperationConsole {
         this.updateRequestSummary();
     }
 
-    private setAuthorizationHeader(accessToken: string): void {
+    private removeAuthorizationHeader(): void {
         const authorizationHeader = this.findHeader(KnownHttpHeaders.Authorization);
         this.removeHeader(authorizationHeader);
+    }
+
+    private setAuthorizationHeader(accessToken: string): void {
+        this.removeAuthorizationHeader();
 
         const keyHeader = new ConsoleHeader();
         keyHeader.name(KnownHttpHeaders.Authorization);
@@ -481,19 +485,15 @@ export class OperationConsole {
     }
 
     public async authenticateOAuth(grantType: string): Promise<void> {
-        let accessToken;
-        const authorizationServer = this.authorizationServer();
+        this.removeAuthorizationHeader();
 
-        switch (grantType) {
-            case "implicit":
-                accessToken = await this.oauthService.authenticateImplicit(authorizationServer);
-                break;
-
-            default:
-                debugger;
+        if (!grantType) {
+            return;
         }
+
+        const authorizationServer = this.authorizationServer();
+        const accessToken = await this.oauthService.authenticate(grantType, authorizationServer);
 
         this.setAuthorizationHeader(accessToken);
     }
-
 }
