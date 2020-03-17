@@ -36,7 +36,7 @@ export class OAuthService {
                 accessToken = await this.authenticateCode(authorizationServer);
                 break;
 
-            case GrantTypes.clientCrdentials:
+            case GrantTypes.clientCredentials:
                 accessToken = await this.authenticateClientCredentials();
                 break;
 
