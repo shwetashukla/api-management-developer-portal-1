@@ -14,10 +14,11 @@ export class OAuthService {
             return pageOfAuthservers
                 .value
                 .map(authServer => new AuthorizationServer(authServer))
-                .filter(authServer => authServer.grantTypes.includes("implicit")); // Temporarily filter out other flows
+                // Temporarily filtering out other flows, until backend starts support them.
+                .filter(authServer => authServer.grantTypes.includes("implicit")); 
         }
         catch (error) {
-            debugger;
+            throw new Error(`Unable to fetch configured authorization servers.`);
         }
     }
 

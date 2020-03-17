@@ -253,13 +253,7 @@ export class OperationConsole {
     }
 
     public removeHeader(header: ConsoleHeader): void {
-        const index = this.consoleOperation().request.headers().indexOf(header);
-
-        if (index < 0) {
-            return;
-        }
-
-        this.consoleOperation().request.headers.splice(index, 1);
+        this.consoleOperation().request.headers.remove(header);
         this.updateRequestSummary();
     }
 
@@ -484,6 +478,10 @@ export class OperationConsole {
         return this.routeHelper.getApiReferenceUrl(this.api().name);
     }
 
+    /**
+     * Initiates specified authentication flow.
+     * @param grantType OAuth grant type, e.g. "implicit" or "authorizationCode".
+     */
     public async authenticateOAuth(grantType: string): Promise<void> {
         this.removeAuthorizationHeader();
 
