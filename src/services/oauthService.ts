@@ -1,4 +1,3 @@
-
 import * as ClientOAuth2 from "client-oauth2";
 import { GrantTypes } from "./../constants";
 import { MapiClient } from "./mapiClient";
@@ -48,14 +47,12 @@ export class OAuthService {
     }
 
     public authenticateImplicit(authorizationServer: AuthorizationServer): Promise<string> {
-        const scopes = ["profile"];
-
         const oauthClient = new ClientOAuth2({
             clientId: authorizationServer.clientId,
             accessTokenUri: authorizationServer.tokenEndpoint,
             authorizationUri: authorizationServer.authorizationEndpoint,
             redirectUri: `https://${location.hostname}/signin-oauth/implicit/callback`,
-            scopes: scopes
+            scopes: authorizationServer.scopes
         });
 
         return new Promise((resolve, reject) => {
@@ -77,18 +74,12 @@ export class OAuthService {
     }
 
     public async authenticateCode(authorizationServer: AuthorizationServer): Promise<string> {
-        const clientId = authorizationServer.clientId;
-        const accessTokenUri = authorizationServer.tokenEndpoint;
-        const authorizationUri = authorizationServer.authorizationEndpoint;
-        const redirectUri = `https://${location.hostname}/signin-oauth/implicit/callback`;
-        const scopes = ["profile"];
-
         const oauthClient = new ClientOAuth2({
-            clientId: clientId,
-            accessTokenUri: accessTokenUri,
-            authorizationUri: authorizationUri,
-            redirectUri: redirectUri,
-            scopes: scopes
+            clientId: authorizationServer.clientId,
+            accessTokenUri: authorizationServer.tokenEndpoint,
+            authorizationUri: authorizationServer.authorizationEndpoint,
+            redirectUri: `https://${location.hostname}/signin-oauth/implicit/callback`,
+            scopes: authorizationServer.scopes
         });
 
         return new Promise<string>((resolve, reject) => {
@@ -128,4 +119,3 @@ export class OAuthService {
         });
     }
 }
-

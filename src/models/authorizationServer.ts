@@ -8,7 +8,7 @@ export class AuthorizationServer {
     public readonly authorizationEndpoint: string;
     public readonly tokenEndpoint: string;
     public readonly grantTypes: string[];
-    public readonly defaultScope: string;
+    public readonly scopes: string[];
 
 
     constructor(contract: AuthorizationServerContract) {
@@ -17,9 +17,11 @@ export class AuthorizationServer {
         this.clientId = contract.properties.clientId;
         this.authorizationEndpoint = contract.properties.authorizationEndpoint;
         this.tokenEndpoint = contract.properties.tokenEndpoint;
-        this.defaultScope = contract.properties.defaultScope;
+        this.scopes = !!contract.properties.defaultScope
+            ? contract.properties.defaultScope.split(" ")
+            : [];
 
         // Temporarily filtering out other flows, until backend starts support them.
-        this.grantTypes = contract.properties.grantTypes.filter(x => x === GrantTypes.implicit); 
+        this.grantTypes = contract.properties.grantTypes.filter(x => x === GrantTypes.implicit);
     }
 }
