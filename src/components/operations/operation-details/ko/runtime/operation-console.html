@@ -12,8 +12,6 @@
         <span aria-hidden="true">✖</span>
     </button>
 
-    <button data-bind="click: $component.authenticateImplicit">AUTH</button>
-
     <nav aria-label="breadcrumb" style="margin-right: 20px">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
@@ -34,18 +32,20 @@
 
     <h3>Authorization</h3>
 
+    <!-- ko if: $component.authorizationServer -->
     <div class="row flex flex-row">
         <div class="col-4">
-            <input type="text" readonly class="form-control form-control-sm" value="Subscription key" />
+            <input type="text" readonly class="form-control form-control-sm" data-bind="value: $component.authorizationServer().displayName" />
         </div>
         <div class="col-6">
             <div class="form-group">
                 <select id="subscriptionKey" class="form-control"
-                    data-bind="options: $component.authorizationServers, optionsText: 'displayName', value: $component.selectedAuthServer">
+                    data-bind="options: $component.authorizationServer().grantTypes, value: $component.selectedGrantType, optionsCaption: 'No auth'">
                 </select>
             </div>
         </div>
     </div>
+    <!-- /ko -->
 
     <div class="row flex flex-row">
         <div class="col-4">

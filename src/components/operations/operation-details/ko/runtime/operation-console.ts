@@ -46,6 +46,7 @@ export class OperationConsole {
     public readonly selectedProduct: ko.Observable<Product>;
     public readonly requestError: ko.Observable<string>;
     public readonly codeSample: ko.Observable<string>;
+    public readonly selectedGrantType: ko.Observable<string>;
     public masterKey: string;
     public isConsumptionMode: boolean;
     public templates: Object;
@@ -80,6 +81,8 @@ export class OperationConsole {
         this.codeSample = ko.observable();
         this.selectedProduct = ko.observable();
         this.onFileSelect = this.onFileSelect.bind(this);
+        this.selectedGrantType = ko.observable();
+        this.authorizationServer = ko.observable();
 
         validation.rules["maxFileSize"] = {
             validator: (file: File, maxSize: number) => !file || file.size < maxSize,
@@ -108,7 +111,7 @@ export class OperationConsole {
     public hostnames: ko.Observable<string[]>;
 
     @Param()
-    public authorizationServers: AuthorizationServer[];
+    public authorizationServer: ko.Observable<AuthorizationServer>;
 
     @OnMounted()
     public async initialize(): Promise<void> {
@@ -123,6 +126,7 @@ export class OperationConsole {
         this.api.subscribe(this.resetConsole);
         this.operation.subscribe(this.resetConsole);
         this.selectedLanguage.subscribe(this.updateRequestSummary);
+        this.selectedGrantType.subscribe(this.authenticateOAuth);
     }
 
     private async resetConsole(): Promise<void> {
@@ -328,6 +332,23 @@ export class OperationConsole {
         this.updateRequestSummary();
     }
 
+    private setAuthorizationHeader(accessToken: string): void {
+        const authorizationHeader = this.findHeader(KnownHttpHeaders.Authorization);
+        this.removeHeader(authorizationHeader);
+
+        const keyHeader = new ConsoleHeader();
+        keyHeader.name(KnownHttpHeaders.Authorization);
+        keyHeader.value(accessToken);
+        keyHeader.description = "Subscription key.";
+        keyHeader.secret = true;
+        keyHeader.inputTypeValue = "password";
+        keyHeader.type = "string";
+        keyHeader.required = true;
+
+        this.consoleOperation().request.headers.push(keyHeader);
+        this.updateRequestSummary();
+    }
+
     private setMasterSubsciptionKeyHeader(): void {
         const subscriptionKey = this.selectedProduct
             ? `${this.masterKey};product=${this.selectedProduct}`
@@ -459,10 +480,20 @@ export class OperationConsole {
         return this.routeHelper.getApiReferenceUrl(this.api().name);
     }
 
-    public async authenticateImplicit(): Promise<void> {
-        const accessToken = await this.oauthService.authenticateImplicit();
+    public async authenticateOAuth(grantType: string): Promise<void> {
+        let accessToken;
+        const authorizationServer = this.authorizationServer();
 
-        debugger;
+        switch (grantType) {
+            case "implicit":
+                accessToken = await this.oauthService.authenticateImplicit(authorizationServer);
+                break;
+
+            default:
+                debugger;
+        }
+
+        this.setAuthorizationHeader(accessToken);
     }
 
 }

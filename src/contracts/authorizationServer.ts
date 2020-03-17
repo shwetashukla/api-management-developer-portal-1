@@ -62,6 +62,7 @@ interface AuthorizationServerProperties {
 
     /**
      * Form of an authorization grant, which the client uses to request the access token.
+     * Examples: "authorizationCode", "clientCredentials", "implicit".
      */
     grantTypes: string[];
 

@@ -1,27 +1,31 @@
 import * as ClientOAuth2 from "client-oauth2";
 import { MapiClient } from "./mapiClient";
 import { AuthorizationServerContract } from "../contracts/authorizationServer";
-import { AuthorizationServer } from "./../models/authorizationServer";
+import { AuthorizationServer } from "../models/authorizationServer";
 import { PageContract } from "../contracts/page";
 
 export class OAuthService {
-    constructor(private readonly mapiClient: MapiClient) {
-    }
+    constructor(private readonly mapiClient: MapiClient) { }
 
     public async getOAuthServers(): Promise<AuthorizationServer[]> {
         try {
-            const pageOfOAuthservers = await this.mapiClient.get<PageContract<AuthorizationServerContract>>("/authorizationServers");
-            return pageOfOAuthservers.value.map(x => new AuthorizationServer(x));
+            const pageOfAuthservers = await this.mapiClient.get<PageContract<AuthorizationServerContract>>("/authorizationServers");
+
+            return pageOfAuthservers
+                .value
+                .map(authServer => new AuthorizationServer(authServer))
+                .filter(authServer => authServer.grantTypes.includes("implicit")); // Temporarily filter out other flows
         }
         catch (error) {
             debugger;
         }
     }
 
-    public async authenticateImplicit(): Promise<void> {
-        const clientId = "356699480563-70p2o8jft36npoa867oiqp3iq99mlrp9.apps.googleusercontent.com";
-        const accessTokenUri = "https://oauth2.googleapis.com/token";
-        const authorizationUri = "https://accounts.google.com/o/oauth2/auth";
+    public authenticateImplicit(authorizationServer: AuthorizationServer): Promise<string> {
+        const clientId = authorizationServer.clientId;
+        const accessTokenUri = authorizationServer.tokenEndpoint;
+        const authorizationUri = authorizationServer.authorizationEndpoint;
+        // const redirectUri = `https://${location.hostname}/signin-oauth/implicit/callback`;
         const redirectUri = "https://developer.apim.net/signin-oauth/implicit/callback";
         const scopes = ["profile"];
 
@@ -33,24 +37,32 @@ export class OAuthService {
             scopes: scopes
         });
 
-        window.open(oauthClient.token.getUri(), "_blank", "width=400,height=500");
+        return new Promise((resolve, reject) => {
+            window.open(oauthClient.token.getUri(), "_blank", "width=400,height=500");
 
-        const receiveMessage = async (event: MessageEvent) => {
-            const uri = event.data["uri"];
-            const user = await oauthClient.token.getToken(uri);
+            const receiveMessage = async (event: MessageEvent) => {
+                const uri = event.data["uri"];
 
-            console.log(user.accessToken);
-        };
+                if (!uri) {
+                    return;
+                }
 
-        window.addEventListener("message", receiveMessage, false);
+                const user = await oauthClient.token.getToken(uri);
+                resolve(`${user.tokenType} ${user.accessToken}`);
+            };
+
+            window.addEventListener("message", receiveMessage, false);
+        });
     }
 
-    public async authenticateCode(): Promise<string> {
-        const clientId = "";
-        const accessTokenUri = "https://oauth2.googleapis.com/token";
-        const authorizationUri = "https://accounts.google.com/o/oauth2/auth";
-        // const redirectUri = "https://developer.apim.net/signin-oauth/code/callback";
-        const redirectUri = "https://alzaslontests02.developer.preview.int-azure-api.net/signin-oauth/code/callback";
+    public async authenticateCode(authorizationServer: AuthorizationServer): Promise<string> {
+        const clientId = authorizationServer.clientId;
+        const accessTokenUri = authorizationServer.tokenEndpoint;
+        const authorizationUri = authorizationServer.authorizationEndpoint;
+        // const redirectUri = `https://${location.hostname}/signin-oauth/implicit/callback`;
+        
+        const redirectUri = "https://developer.apim.net/signin-oauth/code/callback";
+        // const redirectUri = "https://alzaslontests02.developer.preview.int-azure-api.net/signin-oauth/code/callback";
         const scopes = ["profile"];
 
         const oauthClient = new ClientOAuth2({
