@@ -36,7 +36,7 @@ export class OAuthService {
                 break;
 
             case GrantTypes.clientCredentials:
-                accessToken = await this.authenticateClientCredentials();
+                accessToken = await this.authenticateClientCredentials(authorizationServer);
                 break;
 
             default:
@@ -78,7 +78,7 @@ export class OAuthService {
             clientId: authorizationServer.clientId,
             accessTokenUri: authorizationServer.tokenEndpoint,
             authorizationUri: authorizationServer.authorizationEndpoint,
-            redirectUri: `https://${location.hostname}/signin-oauth/implicit/callback`,
+            redirectUri: `https://${location.hostname}/signin-oauth/code/callback/${authorizationServer.id}`,
             scopes: authorizationServer.scopes
         });
 
@@ -99,8 +99,8 @@ export class OAuthService {
         });
     }
 
-    public async authenticateClientCredentials(): Promise<string> {
-        const uri = `https://${location.hostname}/signin-oauth/credentials`;
+    public async authenticateClientCredentials(authorizationServer: AuthorizationServer): Promise<string> {
+        const uri = `https://${location.hostname}/signin-oauth/credentials/${authorizationServer.id}`;
 
         return new Promise<string>((resolve, reject) => {
             window.open(uri, "_blank", "width=400,height=500");
