@@ -17,4 +17,8 @@ export class TagInput {
     public addTag(tag: Tag): void {
         this.tags.push(tag);
     }
+
+    public removeTag(tag: Tag): void {
+        this.tags.remove(tag);
+    }
 }

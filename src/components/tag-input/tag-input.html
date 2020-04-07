@@ -1,5 +1,10 @@
 <!--ko foreach: { data: tags, as: 'tag' } -->
-<a href="#" class="tag" data-bind="text: tag.name"></a>
+<div tabindex="0" href="#" class="tag">
+    <span data-bind="text: tag.name"></span>
+    <button class="close" aria-label="Remove tag" data-bind="activate: $component.removeTag">
+        <i class="icon icon-remove"></i> X
+    </button>
+</div>
 <!-- /ko -->
 <a href="#" class="tag" data-bind="balloon: { component: { name: 'tag-list', params: { onSelect: $component.addTag } } }">
     <i class="icon icon-plus"></i>
