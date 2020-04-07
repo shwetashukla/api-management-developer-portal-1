@@ -1,0 +1,16 @@
+.list {
+    .list-item {
+        padding: 10px;
+        display: block;
+
+        &:hover {
+            background-color: #edebe9;
+            text-decoration: none;
+        }
+
+        &:focus {
+            outline: 1px solid #605e5c;
+            text-decoration: none;
+        }
+    }
+}
