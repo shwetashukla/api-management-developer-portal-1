@@ -1,6 +1,7 @@
-<a href="#" class="tag">Tag 1</a>
-<a href="#" class="tag">Tag 2</a>
-<a href="#" class="tag" data-bind="balloon: { component: { name: 'tag-list' } }">
+<!--ko foreach: { data: tags, as: 'tag' } -->
+<a href="#" class="tag" data-bind="text: tag.name"></a>
+<!-- /ko -->
+<a href="#" class="tag" data-bind="balloon: { component: { name: 'tag-list', params: { onSelect: $component.addTag } } }">
     <i class="icon icon-plus"></i>
     <i class="icon icon-tag"></i>
 </a>

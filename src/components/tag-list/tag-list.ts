@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import * as Constants from "../../constants";
 import template from "./tag-list.html";
-import { Component, OnMounted } from "@paperbits/common/ko/decorators";
+import { Component, OnMounted, Event } from "@paperbits/common/ko/decorators";
 import { Tag } from "../../models/tag";
 
 @Component({
@@ -16,6 +16,9 @@ export class TagList {
         this.tags = ko.observableArray();
         this.pattern = ko.observable();
     }
+
+    @Event()
+    public onSelect: (tag: Tag) => void;
 
     @OnMounted()
     public async initialize(): Promise<void> {
@@ -37,5 +40,9 @@ export class TagList {
     public async resetSearch(): Promise<void> {
         // this.page(1);
         this.loadPageOfTags();
+    }
+
+    public selectTag(tag: Tag): void {
+        this.onSelect(tag);
     }
 }
