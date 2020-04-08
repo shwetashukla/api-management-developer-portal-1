@@ -8,6 +8,8 @@ import { Operation } from "../../../../../models/operation";
 import { SearchQuery } from "../../../../../contracts/searchQuery";
 import { TagGroup } from "../../../../../models/tagGroup";
 import { RouteHelper } from "../../../../../routing/routeHelper";
+import { Tag } from "../../../../../models/tag";
+import { Utils } from "../../../../../utils";
 
 
 @RuntimeComponent({
@@ -27,6 +29,7 @@ export class OperationList {
     public readonly groupByTag: ko.Observable<boolean>;
     public readonly operationGroups: ko.ObservableArray<TagGroup<Operation>>;
     public readonly pattern: ko.Observable<string>;
+    public readonly tags: ko.Observable<string[]>;
     public readonly pageNumber: ko.Observable<number>;
     public readonly hasPrevPage: ko.Observable<boolean>;
     public readonly hasNextPage: ko.Observable<boolean>;
@@ -47,6 +50,7 @@ export class OperationList {
         this.groupByTag = ko.observable(false);
         this.defaultGroupByTagToEnabled = ko.observable(false);
         this.pattern = ko.observable();
+        this.tags = ko.observable([]);
         this.pageNumber = ko.observable(1);
         this.hasNextPage = ko.observable();
         this.hasPrevPage = ko.observable();
@@ -80,6 +84,9 @@ export class OperationList {
             .extend({ rateLimit: { timeout: Constants.defaultInputDelayMs, method: "notifyWhenChangesStop" } })
             .subscribe(this.resetSearch);
 
+        this.tags
+            .subscribe(this.resetSearch);
+
         this.groupByTag
             .subscribe(this.loadOperations);
 
@@ -105,11 +112,11 @@ export class OperationList {
     public async loadOperations(): Promise<void> {
         if (this.groupByTag()) {
             this.operationGroups([]);
-            this.searchRequest = { pattern: this.pattern(), tags: [], grouping: "tag" };
+            this.searchRequest = { pattern: this.pattern(), tags: this.tags(), grouping: "tag" };
         }
         else {
             this.operations([]);
-            this.searchRequest = { pattern: this.pattern(), tags: [], grouping: "none" };
+            this.searchRequest = { pattern: this.pattern(), tags: this.tags(), grouping: "none" };
         }
 
         try {
@@ -214,6 +221,10 @@ export class OperationList {
         else {
             this.loadPageOfOperations();
         }
+    }
+
+    public async onTagsChange(tags: Tag[]): Promise<void> {
+        this.tags(tags.map(tag => Utils.getResourceName("tags", tag.id)));
     }
 
     @OnDestroyed()

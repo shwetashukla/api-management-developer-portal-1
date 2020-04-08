@@ -2,7 +2,7 @@
 
 <div class="form-inline search-input">
     <div class="input-group">
-        <input type="search" role="searchbox" aria-label="Search" placeholder="Search" data-bind="textInput: pattern" />
+        <input type="search" role="searchbox" aria-label="Search" placeholder="Search" spellcheck="false" data-bind="textInput: pattern" />
         <button type="button" class="search-button" aria-label="Search APIs">
             <i class="icon icon-magnifier"></i>
         </button>
@@ -16,7 +16,7 @@
         </label>
     </div>
 </div>
-<tag-input></tag-input>
+<tag-input params="{ onChange: onTagsChange }"></tag-input>
 <div class="table">
     <div class="table-head">
         <div class="table-row">
