@@ -1,3 +1,4 @@
+import { TagService } from "./../../services/tagService";
 import * as ko from "knockout";
 import * as Constants from "../../constants";
 import template from "./tag-list.html";
@@ -12,7 +13,7 @@ export class TagList {
     public readonly tags: ko.ObservableArray<Tag>;
     public readonly pattern: ko.Observable<string>;
 
-    constructor() {
+    constructor(private readonly tagService: TagService) {
         this.tags = ko.observableArray();
         this.pattern = ko.observable();
     }
@@ -30,11 +31,9 @@ export class TagList {
     }
 
     public async loadPageOfTags(): Promise<void> {
-        const tag1 = new Tag({ id: "tag1", properties: { displayName: "Tag 1" } });
-        const tag2 = new Tag({ id: "tag2", properties: { displayName: "Tag 2" } });
-        const tags = [tag1, tag2];
-
-        this.tags(tags);
+        const pageOfTags = await this.tagService.getTags("apis");
+    
+        this.tags(pageOfTags.value);
     }
 
     public async resetSearch(): Promise<void> {
