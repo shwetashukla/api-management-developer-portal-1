@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import template from "./tag-input.html";
-import { Component, Event } from "@paperbits/common/ko/decorators";
+import { Component, Event, Param, OnMounted } from "@paperbits/common/ko/decorators";
 import { Tag } from "../../models/tag";
 
 @Component({
@@ -13,6 +13,9 @@ export class TagInput {
     constructor() {
         this.tags = ko.observableArray();
     }
+
+    @Param()
+    public scope: string;
 
     @Event()
     public onChange: (tags: Tag[]) => void;

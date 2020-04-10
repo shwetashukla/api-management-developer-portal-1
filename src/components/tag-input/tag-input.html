@@ -1,12 +1,16 @@
-<!--ko foreach: { data: tags, as: 'tag' } -->
-<div tabindex="0" href="#" class="tag">
-    <span data-bind="text: tag.name"></span>
-    <button class="close" aria-label="Remove tag" data-bind="activate: $component.removeTag">
-        <i class="icon icon-remove"></i>✖
-    </button>
+<div class="flex flex-wrap">
+    <!--ko foreach: { data: tags, as: 'tag' } -->
+    <div tabindex="0" href="#" class="tag">
+        <span data-bind="text: tag.name"></span>
+
+        <button class="no-border tag-button" aria-label="Remove tag" data-bind="activate: $component.removeTag">
+            <i class="icon icon-simple-remove"></i>
+        </button>
+    </div>
+    <!-- /ko -->
+    
+    <div tabindex="0" class="tag" role="button"
+        data-bind="balloon: { component: { name: 'tag-list', params: { scope: $component.scope, selection: $component.tags, onSelect: $component.addTag } } }">
+        <i class="icon icon-add-filter"></i>
+    </div>
 </div>
-<!-- /ko -->
-<a href="#" class="tag" data-bind="balloon: { component: { name: 'tag-list', params: { onSelect: $component.addTag } } }">
-    <i class="icon icon-plus"></i>
-    <i class="icon icon-tag"></i>
-</a>

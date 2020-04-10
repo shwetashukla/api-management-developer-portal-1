@@ -34,6 +34,7 @@ export class OperationList {
     public readonly hasPrevPage: ko.Observable<boolean>;
     public readonly hasNextPage: ko.Observable<boolean>;
     public readonly hasPager: ko.Computed<boolean>;
+    public readonly tagScope: ko.Computed<string>;
 
     constructor(
         private readonly apiService: ApiService,
@@ -55,6 +56,10 @@ export class OperationList {
         this.hasNextPage = ko.observable();
         this.hasPrevPage = ko.observable();
         this.hasPager = ko.computed(() => this.hasPrevPage() || this.hasNextPage());
+        this.tagScope = ko.computed(() =>
+            this.selectedApiName()
+                ? `apis/${this.selectedApiName()}`
+                : "");
     }
 
     @Param()

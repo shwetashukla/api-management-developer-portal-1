@@ -8,9 +8,19 @@
 .tag:active,
 .tag:hover {
     border: 1px solid #0078d4;
-    padding: 2px 5px;
+    padding: 2px 7px;
     border-radius: 3px;
     color: #0078d4;
-    display: inline-block;
+    cursor: default;
+    display: inline-flex;
     text-decoration: none;
+    align-items: center;
+    margin: 2px;
+    min-height: 2em;
+
+    .tag-button {
+        font-size: .7em;
+        margin-left: 4px;
+        cursor: pointer;
+    }
 }

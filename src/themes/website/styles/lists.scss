@@ -3,6 +3,7 @@
         padding: 10px;
         display: block;
         color: $default-text-color;
+        cursor: default;
 
         &:hover {
             background-color: #edebe9;
@@ -13,5 +14,11 @@
             outline: 1px solid #605e5c;
             text-decoration: none;
         }
+    }
+
+    .list-item-empty {
+        padding: 10px;
+        display: block;
+        color: $default-text-color;
     }
 }

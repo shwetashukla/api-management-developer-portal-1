@@ -1,12 +1,21 @@
 <div class="form-inline search-input">
     <div class="input-group">
-        <input autofocus type="search" role="searchbox" aria-label="Search" placeholder="Search" data-bind="textInput: pattern" />
+        <input autofocus type="search" role="searchbox" aria-label="Search" placeholder="Search"
+            data-bind="textInput: pattern" />
         <button type="button" class="search-button" aria-label="Search APIs">
             <i class="icon icon-magnifier"></i>
         </button>
     </div>
 </div>
 
+<!-- ko ifnot: empty -->
 <div role="list" class="list" data-bind="foreach: { data: tags, as: 'tag' }">
-    <a href="#" role="listitem" class="list-item" data-bind="text: name, activate: $component.selectTag"></span>
+    <div tabindex="0" role="listitem" class="list-item" data-bind="text: name, activate: $component.selectTag"></div>
 </div>
+<!-- /ko -->
+
+<!-- ko if: empty -->
+<div role="list" class="list">
+    <div class="list-item-empty">No tags found</div>
+</div>
+<!-- /ko -->

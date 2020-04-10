@@ -10,7 +10,11 @@ $tip-width: 10px;
     z-index: $z-index-balloon;
     box-shadow: 0 0 2px 2px rgba(0, 0, 0, .15);
     border-radius: $balloon-border-radius;
-    display: block;
+    display: none;
+
+    &.balloon-is-active {
+        display: block;;
+    }
 
     &:after {
         position: absolute;
