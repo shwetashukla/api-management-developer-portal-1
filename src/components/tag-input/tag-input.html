@@ -3,13 +3,13 @@
     <div tabindex="0" href="#" class="tag">
         <span data-bind="text: tag.name"></span>
 
-        <button class="no-border tag-button" aria-label="Remove tag" data-bind="activate: $component.removeTag">
+        <button class="no-border tag-remove" aria-label="Remove tag" data-bind="activate: $component.removeTag">
             <i class="icon icon-simple-remove"></i>
         </button>
     </div>
     <!-- /ko -->
     
-    <div tabindex="0" class="tag" role="button"
+    <div tabindex="0" class="tag tag-add" role="button" title="Add tags to search query"
         data-bind="balloon: { component: { name: 'tag-list', params: { scope: $component.scope, selection: $component.tags, onSelect: $component.addTag } } }">
         <i class="icon icon-add-filter"></i>
     </div>

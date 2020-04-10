@@ -17,10 +17,20 @@
     align-items: center;
     margin: 2px;
     min-height: 2em;
+}
 
-    .tag-button {
-        font-size: .7em;
-        margin-left: 4px;
+.tag.tag-add {
+    cursor: pointer;
+}
+
+.tag-remove {
+    font-size: .7em;
+    margin-left: 4px;
+    cursor: pointer;
+}
+
+.list {
+    .tag {
         cursor: pointer;
     }
 }
