@@ -10,7 +10,8 @@ $tip-width: 10px;
     z-index: $z-index-balloon;
     box-shadow: 0 0 2px 2px rgba(0, 0, 0, .15);
     border-radius: $toolbox-border-radius;
-    display: block;
+    padding: 7px;
+    display: none;
 
     &:after {
         position: absolute;
@@ -21,6 +22,10 @@ $tip-width: 10px;
         z-index: $z-index-balloon;
         box-shadow: -2px -2px 2px rgba(0, 0, 0, 0.15);
         z-index: -100;
+    }
+
+    &.balloon-is-active {
+        display: flex;
     }
 
     &.balloon-top {
