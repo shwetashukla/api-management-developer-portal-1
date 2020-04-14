@@ -1,5 +1,5 @@
 <div class="flex flex-wrap">
-    <!--ko foreach: { data: tags, as: 'tag' } -->
+    <!--ko foreach: { data: selection, as: 'tag' } -->
     <div tabindex="0" href="#" class="tag">
         <span data-bind="text: tag.name"></span>
 
@@ -9,8 +9,10 @@
     </div>
     <!-- /ko -->
     
+    <!-- ko ifnot: empty -->
     <div tabindex="0" class="tag tag-add" role="button" title="Add tags to search query"
-        data-bind="balloon: { component: { name: 'tag-list', params: { scope: $component.scope, selection: $component.tags, onSelect: $component.addTag } } }">
+        data-bind="balloon: { template: { name: 'tagList', data: $component } }">
         <i class="icon icon-add-filter"></i>
     </div>
+    <!-- /ko -->
 </div>

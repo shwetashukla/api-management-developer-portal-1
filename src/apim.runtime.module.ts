@@ -65,7 +65,6 @@ import { StaticUserService } from "./services";
 import { SignOutRouteGuard } from "./routing/signOutRouteGuard";
 import { ProvisionService } from "./services/provisioningService";
 import { BalloonBindingHandler } from "@paperbits/core/ko/bindingHandlers";
-import { TagList } from "./components/tag-list/tag-list";
 
 
 export class ApimRuntimeModule implements IInjectorModule {
@@ -127,7 +126,6 @@ export class ApimRuntimeModule implements IInjectorModule {
         injector.bindSingleton("routeHelper", RouteHelper);
         injector.bindSingleton("userService", StaticUserService);
         injector.bindSingleton("provisioningService", ProvisionService);
-        injector.bind("tagList", TagList);
         injector.bind("tagInput", TagInput);
     }
 }

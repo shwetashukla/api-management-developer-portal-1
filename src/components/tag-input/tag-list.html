@@ -9,8 +9,8 @@
 </div>
 
 <!-- ko ifnot: empty -->
-<div role="list" class="list" data-bind="foreach: { data: tags, as: 'tag' }">
-    <div role="presentation" data-bind="activate: $component.selectTag">
+<div role="list" class="list" data-bind="foreach: { data: availableTags, as: 'tag' }">
+    <div role="presentation" data-bind="activate: $parent.addTag">
         <div tabindex="0" role="listitem" class="tag" data-bind="text: name"></div>
     </div>
 </div>
