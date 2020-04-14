@@ -11,46 +11,36 @@ export abstract class TypeDefinitionPropertyType {
 
 
 export class TypeDefinitionPropertyTypePrimitive extends TypeDefinitionPropertyType {
-    public combination: string;
-
-    constructor(name: string) {
+    constructor(public readonly name: string) {
         super("primitive");
     }
 }
 
 export class TypeDefinitionPropertyTypeReference extends TypeDefinitionPropertyType {
-    public combination: string;
-
-    constructor(name: string) {
+    constructor(public readonly name: string) {
         super("reference");
-        this.combination = name;
     }
 }
 
 export class TypeDefinitionPropertyTypeArrayOfPrimitive extends TypeDefinitionPropertyType {
-    public combination: string;
 
-    constructor(name: string) {
+    constructor(public readonly name: string) {
         super("arrayOfPrimitive");
-        this.combination = name;
     }
 }
 
 export class TypeDefinitionPropertyTypeArrayOfReference extends TypeDefinitionPropertyType {
-    public combination: string;
-
-    constructor(name: string) {
+    constructor(public name: string) {
         super("arrayOfReference");
-        this.combination = name;
     }
 }
 
 export class TypeDefinitionPropertyTypeCombination extends TypeDefinitionPropertyType {
-    public combination: TypeDefinitionPropertyType[];
-
-    constructor(combination: TypeDefinitionPropertyType[]) {
-        super("compination");
-        this.combination = combination;
+    constructor(
+        public readonly combinationType: string,
+        public readonly combination: TypeDefinitionPropertyType[]
+    ) {
+        super("combination");
     }
 }
 
@@ -137,19 +127,40 @@ export class TypeDefinitionEnumerationProperty extends TypeDefinitionProperty {
 }
 
 export class TypeDefinitionCombinationProperty extends TypeDefinitionProperty {
-    constructor(name: string, contract: SchemaObjectContract, isRequired: boolean, isArray: boolean = false) {
-        super(name, contract, isRequired, isArray);
+    constructor(name: string, contract: SchemaObjectContract, isRequired: boolean) {
+        super(name, contract, isRequired, false);
 
-        const combination = contract.allOf.map(x => {
+        let combinationType;
+        let combinationArray;
+
+        if (contract.allOf) {
+            combinationType = "all of";
+            combinationArray = contract.allOf;
+        }
+
+        if (contract.anyOf) {
+            combinationType = "any of";
+            combinationArray = contract.anyOf;
+        }
+
+        if (contract.oneOf) {
+            combinationType = "one of";
+            combinationArray = contract.oneOf;
+        }
+
+        if (contract.not) {
+            combinationType = "not";
+            combinationArray = contract.not;
+        }
+
+        const combination = combinationArray.map(x => {
             if (x.$ref) {
                 return new TypeDefinitionPropertyTypeReference(getTypeNameFromRef(x.$ref));
             }
-
-            debugger;
+            return new TypeDefinitionPropertyTypePrimitive(x.type || "object");
         });
 
-
-        this.type = new TypeDefinitionPropertyTypeCombination(combination);
+        this.type = new TypeDefinitionPropertyTypeCombination(combinationType, combination);
         this.kind = "combination";
     }
 }
@@ -211,7 +222,11 @@ export class TypeDefinitionObjectProperty extends TypeDefinitionProperty {
                         propertySchemaObject.type = "array";
                     }
 
-                    if (propertySchemaObject.allOf) {
+                    if (propertySchemaObject.allOf ||
+                        propertySchemaObject.anyOf ||
+                        propertySchemaObject.oneOf ||
+                        propertySchemaObject.not
+                    ) {
                         propertySchemaObject.type = "combination";
                     }
 
@@ -251,7 +266,7 @@ export class TypeDefinitionObjectProperty extends TypeDefinitionProperty {
                             break;
 
                         case "combination":
-                            return new TypeDefinitionCombinationProperty(propertyName, propertySchemaObject, isRequired, false);
+                            return new TypeDefinitionCombinationProperty(propertyName, propertySchemaObject, isRequired);
                             break;
 
                         default:

@@ -45,26 +45,36 @@
                 </div>
                 <div class="col-1" data-bind="text: property.required"></div>
                 <div class="col-1 text-truncate">
-                    <!-- ko if: property.type.isReference -->
-                    <a data-bind="text: property.type.name, attr: { href: $component.getReferenceUrl(property.type.name), title: property.type.name }"></a>
-                    <!-- /ko -->
-                    <!-- ko ifnot: property.type.isReference -->
+                    <!-- ko if: property.type.displayAs === 'primitive' -->
                     <code data-bind="text: property.type.name, attr: { title: property.type.name }"></code>
                     <!-- /ko -->
-                    <!-- ko if: property.type.isArray -->
-                    []
+
+                    <!-- ko if: property.type.displayAs === 'arrayOfPrimitive' -->
+                    <code data-bind="text: property.type.name, attr: { title: property.type.name }"></code>[]
+                    <!-- /ko -->
+
+                    <!-- ko if: property.type.displayAs === 'reference' -->
+                    <code><a data-bind="text: property.type.name, attr: { href: $component.getReferenceUrl(property.type.name), title: property.type.name }"></a></code>
+                    <!-- /ko -->
+
+                    <!-- ko if: property.type.displayAs === 'arrayOfReference' -->
+                    <code><a data-bind="text: property.type.name, attr: { href: $component.getReferenceUrl(property.type.name), title: property.type.name }"></a></code>[]
                     <!-- /ko -->
 
 
-                    <!-- ko if: property.type.isCombination -->
-                   
+
+                    <!-- ko if: property.type.displayAs === 'combination' -->
+                    <span data-bind="text: property.type.combinationType"></span>
                     <!-- ko foreach: { data: property.type.combination, as: 'item' } -->
-                    <!-- ko if: item.isReference -->
-                    <a data-bind="text: item.name, attr: { href: $component.getReferenceUrl(item.name), title: item.name }"></a>
+
+                    <!-- ko if: item.displayAs === 'reference' -->
+                    <code><a data-bind="text: item.name, attr: { href: $component.getReferenceUrl(item.name), title: item.name }"></a></code>
                     <!-- /ko -->
-                    <!-- ko ifnot: item.isReference -->
+
+                    <!-- ko if: item.displayAs === 'primitive' -->
                     <code data-bind="text: item, attr: { title: item.name }"></code>
                     <!-- /ko -->
+
                     <!-- /ko -->
 
                     <!-- /ko -->
@@ -91,7 +101,8 @@
         </div>
         <div class="table-body">
             <div class="table-row">
-                <div class="col-1 text-truncate" data-bind="markdown: definition.type.name, attr: { title: definition.type.name }"></div>
+                <div class="col-1 text-truncate"
+                    data-bind="markdown: definition.type.name, attr: { title: definition.type.name }"></div>
                 <div class="col-11">
                     <!-- ko foreach: { data: definition.enum, as: 'value' } -->
                     <!-- ko if: $index() > 0 -->,
@@ -117,10 +128,10 @@
                     <code data-bind="text: property.name, attr: { title: property.name }"></code>
                 </div>
                 <div class="col-2 text-truncate">
-                    <!-- ko if: property.type.isReference -->
-                    <a data-bind="text: property.type.name, attr: { href: $component.getReferenceUrl(property.type.name), attr: { title: property.type.name } }"></a>
+                    <!-- ko if: property.type.displayAs === 'reference' -->
+                    <code><a data-bind="text: property.type.name, attr: { href: $component.getReferenceUrl(property.type.name), attr: { title: property.type.name } }"></a></code>
                     <!-- /ko -->
-                    <!-- ko ifnot: property.type.isReference -->
+                    <!-- ko if: property.type.displayAs === 'primitive' -->
                     <code data-bind="text: property.type.name, attr: { title: property.type.name }"></code>
                     <!-- /ko -->
                 </div>
