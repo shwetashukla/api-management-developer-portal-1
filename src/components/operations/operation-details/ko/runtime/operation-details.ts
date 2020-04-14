@@ -1,3 +1,4 @@
+import { TypeDefinitionPropertyTypeCombination } from "./../../../../../models/typeDefinition";
 import { Representation } from "./../../../../../models/representation";
 import * as ko from "knockout";
 import template from "./operation-details.html";
@@ -185,10 +186,23 @@ export class OperationDetails {
 
     private lookupReferences(definitions: TypeDefinition[], skipNames: string[]): string[] {
         const objectDefinitions: TypeDefinitionProperty[] = definitions.map(r => r.properties).flat();
+        const result = [];
 
-        return objectDefinitions.filter(p => 
-            p.kind === "indexer" ||  p.type && p.type instanceof TypeDefinitionPropertyTypeReference && !skipNames.includes(p.type.name)
-          ).map(d => d.type["name"]);
+        objectDefinitions.forEach(definition => {
+            if (definition.kind === "indexed") {
+                result.push(definition.type["name"]);
+            }
+
+            if (definition.type instanceof TypeDefinitionPropertyTypeReference && !skipNames.includes(definition.type.name)) {
+                result.push(definition.type["name"]);
+            }
+
+            if (definition.type instanceof TypeDefinitionPropertyTypeCombination) {
+                result.push(...definition.type.combination.map(x => x["name"]));
+            }
+        });
+
+        return result;
     }
 
     public async loadGatewayInfo(): Promise<void> {
