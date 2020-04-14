@@ -1,26 +1,56 @@
 import { SchemaObjectContract } from "../contracts/schema";
 
 
-export class TypeDefinitionPropertyType {
-    /**
-     * e.g. "string", "boolean", "object", etc.
-     */
-    public name: string;
+export abstract class TypeDefinitionPropertyType {
+    public displayAs: string;
 
-    /**
-     * Indicates if the type name inferred from reference ($ref: "#/definitions/Pet").
-     */
-    public isReference: boolean;
+    constructor(displayAs: string) {
+        this.displayAs = displayAs;
+    }
+}
 
-    /**
-     * Indicates if this is an array of the type.
-     */
-    public isArray: boolean;
 
-    constructor(name: string, isReference: boolean = false, isArray: boolean = false) {
-        this.name = name;
-        this.isReference = isReference;
-        this.isArray = isArray;
+export class TypeDefinitionPropertyTypePrimitive extends TypeDefinitionPropertyType {
+    public combination: string;
+
+    constructor(name: string) {
+        super("primitive");
+    }
+}
+
+export class TypeDefinitionPropertyTypeReference extends TypeDefinitionPropertyType {
+    public combination: string;
+
+    constructor(name: string) {
+        super("reference");
+        this.combination = name;
+    }
+}
+
+export class TypeDefinitionPropertyTypeArrayOfPrimitive extends TypeDefinitionPropertyType {
+    public combination: string;
+
+    constructor(name: string) {
+        super("arrayOfPrimitive");
+        this.combination = name;
+    }
+}
+
+export class TypeDefinitionPropertyTypeArrayOfReference extends TypeDefinitionPropertyType {
+    public combination: string;
+
+    constructor(name: string) {
+        super("arrayOfReference");
+        this.combination = name;
+    }
+}
+
+export class TypeDefinitionPropertyTypeCombination extends TypeDefinitionPropertyType {
+    public combination: TypeDefinitionPropertyType[];
+
+    constructor(combination: TypeDefinitionPropertyType[]) {
+        super("compination");
+        this.combination = combination;
     }
 }
 
@@ -74,7 +104,7 @@ export abstract class TypeDefinitionProperty {
     constructor(name: string, contract: SchemaObjectContract, isRequired: boolean, isArray: boolean) {
         this.name = contract.title || name;
         this.description = contract.description;
-        this.type = new TypeDefinitionPropertyType(contract.format || contract.type || "object");
+        this.type = new TypeDefinitionPropertyTypePrimitive(contract.format || contract.type || "object");
         this.isArray = isArray;
 
         if (contract.example) {
@@ -103,7 +133,24 @@ export class TypeDefinitionEnumerationProperty extends TypeDefinitionProperty {
         super(name, contract, isRequired, isArray);
 
         this.kind = "enum";
-        this.enum = this.enum;
+    }
+}
+
+export class TypeDefinitionCombinationProperty extends TypeDefinitionProperty {
+    constructor(name: string, contract: SchemaObjectContract, isRequired: boolean, isArray: boolean = false) {
+        super(name, contract, isRequired, isArray);
+
+        const combination = contract.allOf.map(x => {
+            if (x.$ref) {
+                return new TypeDefinitionPropertyTypeReference(getTypeNameFromRef(x.$ref));
+            }
+
+            debugger;
+        });
+
+
+        this.type = new TypeDefinitionPropertyTypeCombination(combination);
+        this.kind = "combination";
     }
 }
 
@@ -119,19 +166,19 @@ export class TypeDefinitionObjectProperty extends TypeDefinitionProperty {
         this.kind = "object";
 
         if (contract.$ref) { // reference
-            this.type = new TypeDefinitionPropertyType(this.getTypeNameFromRef(contract.$ref), true);
+            this.type = new TypeDefinitionPropertyTypeReference(getTypeNameFromRef(contract.$ref));
             return;
         }
 
         if (contract.items) { // indexer
-            let type = new TypeDefinitionPropertyType("object");
+            let type = new TypeDefinitionPropertyTypePrimitive("object");
 
             if (contract.items.type) {
-                type = new TypeDefinitionPropertyType(contract.items.type);
+                type = new TypeDefinitionPropertyTypePrimitive(contract.items.type);
             }
 
             if (contract.items.$ref) {
-                type = new TypeDefinitionPropertyType(this.getTypeNameFromRef(contract.items.$ref), true);
+                type = new TypeDefinitionPropertyTypeReference(getTypeNameFromRef(contract.items.$ref));
             }
 
             this.properties = [new TypeDefinitionIndexerProperty(type)];
@@ -164,6 +211,10 @@ export class TypeDefinitionObjectProperty extends TypeDefinitionProperty {
                         propertySchemaObject.type = "array";
                     }
 
+                    if (propertySchemaObject.allOf) {
+                        propertySchemaObject.type = "combination";
+                    }
+
                     switch (propertySchemaObject.type) {
                         case "integer":
                         case "number":
@@ -188,15 +239,19 @@ export class TypeDefinitionObjectProperty extends TypeDefinitionProperty {
                             }
 
                             if (propertySchemaObject.items.type) {
-                                prop.type = new TypeDefinitionPropertyType(propertySchemaObject.items.type, false, true);
+                                prop.type = new TypeDefinitionPropertyTypeArrayOfPrimitive(propertySchemaObject.items.type);
                             }
 
                             if (propertySchemaObject.items.$ref) {
-                                prop.type = new TypeDefinitionPropertyType(this.getTypeNameFromRef(propertySchemaObject.items.$ref), true, true);
+                                prop.type = new TypeDefinitionPropertyTypeArrayOfReference(getTypeNameFromRef(propertySchemaObject.items.$ref));
                             }
 
                             return prop;
 
+                            break;
+
+                        case "combination":
+                            return new TypeDefinitionCombinationProperty(propertyName, propertySchemaObject, isRequired, false);
                             break;
 
                         default:
@@ -207,9 +262,11 @@ export class TypeDefinitionObjectProperty extends TypeDefinitionProperty {
         }
     }
 
-    protected getTypeNameFromRef($ref: string): string {
-        return $ref && $ref.split("/").pop();
-    }
+
+}
+
+function getTypeNameFromRef($ref: string): string {
+    return $ref && $ref.split("/").pop();
 }
 
 export class TypeDefinitionIndexerProperty extends TypeDefinitionObjectProperty {

@@ -27,6 +27,7 @@
 <!-- /ko -->
 
 <template id="typeDefinitionObject">
+    OBJ
     <!-- ko if: definition.properties && definition.properties.length > 0 -->
     <div class="table">
         <div class="table-head">
@@ -52,6 +53,20 @@
                     <!-- /ko -->
                     <!-- ko if: property.type.isArray -->
                     []
+                    <!-- /ko -->
+
+
+                    <!-- ko if: property.type.isCombination -->
+                   
+                    <!-- ko foreach: { data: property.type.combination, as: 'item' } -->
+                    <!-- ko if: item.isReference -->
+                    <a data-bind="text: item.name, attr: { href: $component.getReferenceUrl(item.name), title: item.name }"></a>
+                    <!-- /ko -->
+                    <!-- ko ifnot: item.isReference -->
+                    <code data-bind="text: item, attr: { title: item.name }"></code>
+                    <!-- /ko -->
+                    <!-- /ko -->
+
                     <!-- /ko -->
                 </div>
                 <div class="col-6" data-bind="markdown: property.description"></div>

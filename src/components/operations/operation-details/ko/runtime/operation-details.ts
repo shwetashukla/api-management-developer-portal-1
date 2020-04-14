@@ -157,7 +157,10 @@ export class OperationDetails {
                 }
             });
 
-        const typeNames = prepresentations.filter(p => !!p.typeName).map(p => p.typeName).filter((item, pos, self) => self.indexOf(item) === pos);
+        const typeNames = prepresentations
+            .filter(p => !!p.typeName)
+            .map(p => p.typeName)
+            .filter((item, pos, self) => self.indexOf(item) === pos);
 
         const schemasPromises = schemaIds.map(schemaId => this.apiService.getApiSchema(`${apiId}/${schemaId}`));
         const schemas = await Promise.all(schemasPromises);
@@ -178,7 +181,11 @@ export class OperationDetails {
 
     private lookupReferences(definitions: TypeDefinition[], skipNames: string[]): string[] {
         const objectDefinitions: TypeDefinitionProperty[] = definitions.map(r => r.properties).flat();
-        return objectDefinitions.filter(p => p && p.type && (p.type.isReference || p.kind === "indexer") && skipNames.indexOf(p.type.name) === -1).map(d => d.type.name);
+
+        return objectDefinitions.filter(p => p
+            && p.type
+            && (p.type.isReference || p.kind === "indexer")
+            && skipNames.indexOf(p.type.name) === -1).map(d => d.type.name);
     }
 
     public async loadGatewayInfo(): Promise<void> {

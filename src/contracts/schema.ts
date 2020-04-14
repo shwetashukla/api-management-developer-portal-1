@@ -34,7 +34,7 @@ export interface SchemaObjectContract extends ReferenceObjectContract {
 
     items?: SchemaObjectContract;
 
-    allOf?: SchemaObjectContract;
+    allOf?: SchemaObjectContract[];
 
     anyOf?: SchemaObjectContract;
 
