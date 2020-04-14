@@ -24,6 +24,7 @@ export class TagInput {
         this.selection = ko.observableArray([]);
         this.availableTags = ko.computed<Tag[]>(() => this.tags().filter(tag => !this.selection().map(x => x.id).includes(tag.id)));
         this.empty = ko.computed(() => this.availableTags().length === 0);
+        this.onDismiss = new ko.subscribable<Tag[]>();
     }
 
     @Param()
@@ -31,6 +32,8 @@ export class TagInput {
 
     @Event()
     public onChange: (tags: Tag[]) => void;
+
+    public onDismiss: ko.Subscribable;
 
     @OnMounted()
     public async initialize(): Promise<void> {
@@ -61,6 +64,7 @@ export class TagInput {
 
         if (this.onChange) {
             this.onChange(this.selection());
+            this.onDismiss.notifySubscribers();
         }
     }
 
@@ -69,6 +73,7 @@ export class TagInput {
 
         if (this.onChange) {
             this.onChange(this.selection());
+            this.onDismiss.notifySubscribers();
         }
     }
 }
