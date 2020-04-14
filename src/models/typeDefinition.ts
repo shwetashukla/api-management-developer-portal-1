@@ -134,22 +134,22 @@ export class TypeDefinitionCombinationProperty extends TypeDefinitionProperty {
         let combinationArray;
 
         if (contract.allOf) {
-            combinationType = "all of";
+            combinationType = "All of";
             combinationArray = contract.allOf;
         }
 
         if (contract.anyOf) {
-            combinationType = "any of";
+            combinationType = "Any of";
             combinationArray = contract.anyOf;
         }
 
         if (contract.oneOf) {
-            combinationType = "one of";
+            combinationType = "One of";
             combinationArray = contract.oneOf;
         }
 
         if (contract.not) {
-            combinationType = "not";
+            combinationType = "Not";
             combinationArray = contract.not;
         }
 
