@@ -153,11 +153,11 @@ export class TypeDefinitionCombinationProperty extends TypeDefinitionProperty {
             combinationArray = contract.not;
         }
 
-        const combination = combinationArray.map(x => {
-            if (x.$ref) {
-                return new TypeDefinitionPropertyTypeReference(getTypeNameFromRef(x.$ref));
+        const combination = combinationArray.map(item => {
+            if (item.$ref) {
+                return new TypeDefinitionPropertyTypeReference(getTypeNameFromRef(item.$ref));
             }
-            return new TypeDefinitionPropertyTypePrimitive(x.type || "object");
+            return new TypeDefinitionPropertyTypePrimitive(item.type || "object");
         });
 
         this.type = new TypeDefinitionPropertyTypeCombination(combinationType, combination);
@@ -171,7 +171,7 @@ export class TypeDefinitionObjectProperty extends TypeDefinitionProperty {
      */
     public properties?: TypeDefinitionProperty[];
 
-    constructor(name: string, contract: SchemaObjectContract, isRequired: boolean, isArray: boolean = false) {
+    constructor(name: string, contract: SchemaObjectContract, isRequired: boolean, isArray: boolean = false, nested: boolean = false) {
         super(name, contract, isRequired, isArray);
 
         this.kind = "object";
@@ -203,13 +203,15 @@ export class TypeDefinitionObjectProperty extends TypeDefinitionProperty {
         }
 
         if (contract.properties) { // complex type
-            this.properties = Object
+            const props = [];
+
+            Object
                 .keys(contract.properties)
-                .map(propertyName => {
+                .forEach(propertyName => {
                     const propertySchemaObject = contract.properties[propertyName];
 
                     if (!propertySchemaObject) {
-                        return null;
+                        return;
                     }
 
                     const isRequired = contract.required?.includes(propertyName) || false;
@@ -236,14 +238,23 @@ export class TypeDefinitionObjectProperty extends TypeDefinitionProperty {
                         case "string":
                         case "boolean":
                             if (propertySchemaObject.enum) {
-                                return new TypeDefinitionEnumerationProperty(propertyName, propertySchemaObject, isRequired);
+                                props.push(new TypeDefinitionEnumerationProperty(propertyName, propertySchemaObject, isRequired));
                             }
 
-                            return new TypeDefinitionPrimitiveProperty(propertyName, propertySchemaObject, isRequired);
+                            props.push(new TypeDefinitionPrimitiveProperty(propertyName, propertySchemaObject, isRequired));
                             break;
 
                         case "object":
-                            return new TypeDefinitionObjectProperty(propertyName, propertySchemaObject, isRequired, true);
+                            const objProp = new TypeDefinitionObjectProperty(propertyName, propertySchemaObject, isRequired, true, true);
+
+                            if (!nested) {
+                                const n = this.flattenNestedObjects(objProp, propertyName);
+                                props.push(...n);
+                            }
+                            else {
+                                props.push(objProp);
+                            }
+
                             break;
 
                         case "array":
@@ -261,23 +272,40 @@ export class TypeDefinitionObjectProperty extends TypeDefinitionProperty {
                                 prop.type = new TypeDefinitionPropertyTypeArrayOfReference(getTypeNameFromRef(propertySchemaObject.items.$ref));
                             }
 
-                            return prop;
+                            props.push(prop);
 
                             break;
 
                         case "combination":
-                            return new TypeDefinitionCombinationProperty(propertyName, propertySchemaObject, isRequired);
+                            props.push(new TypeDefinitionCombinationProperty(propertyName, propertySchemaObject, isRequired));
                             break;
 
                         default:
                             console.warn(`Unknown type of schema definition: ${propertySchemaObject.type}`);
                     }
-                })
-                .filter(x => !!x);
+                });
+
+            this.properties = props;
         }
     }
 
+    private flattenNestedObjects(nested: TypeDefinitionObjectProperty, prefix: string): TypeDefinitionProperty[] {
+        const result = [];
 
+        if (nested.properties) {
+            nested.properties.forEach(prop => {
+                if (prop instanceof TypeDefinitionObjectProperty) {
+                    result.push(...this.flattenNestedObjects(<TypeDefinitionObjectProperty>prop, prefix + "." + prop.name));
+                }
+                else {
+                    prop.name = prefix + "." + prop.name;
+                    result.push(prop);
+                }
+            });
+        }
+
+        return result;
+    }
 }
 
 function getTypeNameFromRef($ref: string): string {
