@@ -39,7 +39,7 @@
         </div>
         <div class="table-body" data-bind="foreach: { data: definition.properties, as: 'property' }">
             <div class="table-row">
-                <div class="col-4 text-truncate">
+                <div class="col-4 text-truncate" data-bind="text: property.name, attr: { title: property.name }">
                     <span class="monospace" data-bind="text: property.name, attr: { title: property.name }"></span>
                 </div>
                 <div class="col-1" data-bind="text: property.required"></div>
@@ -59,8 +59,6 @@
                     <!-- ko if: property.type.displayAs === 'arrayOfReference' -->
                     <a class="monospace" data-bind="text: property.type.name, attr: { href: $component.getReferenceUrl(property.type.name), title: property.type.name }"></a>[]
                     <!-- /ko -->
-
-
 
                     <!-- ko if: property.type.displayAs === 'combination' -->
                     <div>
