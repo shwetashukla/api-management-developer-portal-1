@@ -245,14 +245,14 @@ export class TypeDefinitionObjectProperty extends TypeDefinitionProperty {
                             break;
 
                         case "object":
-                            const objProp = new TypeDefinitionObjectProperty(propertyName, propertySchemaObject, isRequired, true, true);
+                            const objectProperty = new TypeDefinitionObjectProperty(propertyName, propertySchemaObject, isRequired, true, true);
 
                             if (!nested) {
-                                const n = this.flattenNestedObjects(objProp, propertyName);
-                                props.push(...n);
+                                const flattenObjects = this.flattenNestedObjects(objectProperty, propertyName);
+                                props.push(...flattenObjects);
                             }
                             else {
-                                props.push(objProp);
+                                props.push(objectProperty);
                             }
 
                             break;
